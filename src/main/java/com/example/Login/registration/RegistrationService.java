@@ -3,9 +3,12 @@ package com.example.Login.registration;
 import com.example.Login.appuser.AppUser;
 import com.example.Login.appuser.AppUserRole;
 import com.example.Login.appuser.AppUserService;
+import com.example.Login.registration.token.ConfirmationToken;
+import com.example.Login.registration.token.ConfirmationTokenService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -16,6 +19,7 @@ public class RegistrationService {
 
     private final EmailValidator emailValidator;
     private final AppUserService appUserService;
+    private final ConfirmationTokenService confirmationTokenService;
 
     public List<AppUser> getUsers() {
         return appUserService.getUsers();
@@ -35,5 +39,23 @@ public class RegistrationService {
                         AppUserRole.USER
                 )
         );
+    }
+
+    public String confirmToken(String token) {
+ ConfirmationToken confirmationToken = confirmationTokenService
+         .getToken(token)
+            .orElseThrow(() -> new IllegalArgumentException("Token not found"));
+    if(confirmationToken.getConfirmedAt() != null) {
+        throw new IllegalArgumentException("Token already confirmed");
+    }
+        LocalDateTime expiredAt = confirmationToken.getExpiredAt();
+        if(LocalDateTime.now().isAfter(expiredAt)) {
+            throw new IllegalArgumentException("Token expired");
+        }
+        confirmationTokenService.setConfirmedAt(token);
+        appUserService.enableAppUser(
+                confirmationToken.getAppUser().getEmail()
+        );
+        return "Token confirmed";
     }
 }
