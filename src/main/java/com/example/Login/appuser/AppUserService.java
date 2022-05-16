@@ -45,7 +45,7 @@ public class AppUserService implements UserDetailsService {
 
         ConfirmationToken confirmationToken = new ConfirmationToken(
                 token,
-                LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().plusMinutes(15),
                 LocalDateTime.now(),
                 appUser
 
@@ -59,5 +59,9 @@ public class AppUserService implements UserDetailsService {
     }
 
     public void enableAppUser(String email) {
+        appUserRepository.findUserByEmail(email).ifPresent(u -> {
+            u.setEnabled(true);
+            appUserRepository.save(u);
+        });
     }
 }
