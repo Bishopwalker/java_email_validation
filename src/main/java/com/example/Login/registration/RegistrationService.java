@@ -32,10 +32,6 @@ public class RegistrationService {
         return appUserService.getUsers();
     }
 
-    public List<AppUser> getUsersWithSorting(String field) {
-        return appUserService.findUsersWithSorting(field);
-    }
-
     public String register(RegistrationRequest request) {
         boolean isEmailValid = emailValidator.test(request.getEmail());
         if (!isEmailValid) {

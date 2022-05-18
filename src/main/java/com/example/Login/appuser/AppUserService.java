@@ -6,6 +6,8 @@ import com.example.Login.registration.token.ConfirmationToken;
 import com.example.Login.registration.token.ConfirmationTokenService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -53,13 +55,20 @@ public class AppUserService implements UserDetailsService {
 //                .collect(Collectors.toList());
 //        appUserRepository.saveAll(users);
 //    }
-    //findUsers with sorting Ascending
-    public List<AppUser> findUsersWithSorting(String field){
-        return appUserRepository.findAll(Sort.by(Sort.Direction.ASC, field));
+    //findUsers with sorting add field and asc/desc
+    public List<AppUser> findUsersWithSorting(String field, String direction){
+        Sort sort = Sort.by(Sort.Direction.fromString(direction), field);
+        return appUserRepository.findAll(sort);
     }
 
     public List<AppUser> getUsers() {
         return appUserRepository.findAll();
+    }
+
+    //pagination
+    public Page<AppUser> getUsersPage(int amount, int size) {
+           Page<AppUser> users = appUserRepository.findAll(PageRequest.of(amount, size));
+              return users;
     }
 
     public String signUpUser(AppUser appUser) {
